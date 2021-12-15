@@ -33,9 +33,107 @@ knitr::opts_chunk$set(echo = FALSE, include = FALSE)
 
 
 
-```{r}
+```{r load}
 load("knr.Rdata")
 ```
 
+```{r pm2_raw}
+pm2_raw <- ApiData(
+  urlToData = "06035",
+  Region = knr,
+  ContentsCode = "KvPris",
+  Boligtype = "01",
+  Tid = c(as.character(2002:2017)))
+```
+
+
+```{r Endre navn }
+pm2 <- pm2_raw$dataset %>%
+  tibble() %>%
+  select(-Boligtype, -ContentsCode) %>% 
+  rename(
+    knr = Region,
+    aar = Tid,
+    pm2 = value) 
+```
+
+```{r Endre navn til desc}
+names(pm2_raw)[[1]] <- "desc"
+```
+
+```{r Kommune til pm2}
+pm2 <- pm2 %>%
+mutate(knavn = pm2_raw$desc$region) %>% 
+  group_by(knr) %>% 
+  select(knr, aar, pm2, knavn)
+```
+
+```{r Load - test-string-tib}
+load("test_string_tib.Rdata")
+# Legg inn regex mønster
+moenster <- '\\s+\\(\\d*[19-]\\d*[2019]\\)\\s*$'
+```
+
+```{r pm2 mutate}
+pm2 %>%
+mutate(
+knavn = str_replace(knavn, moenster, "")
+)
+```
+
+Sjekke hvor mange NA verdier det er i pm2
+```{r pm2}
+pm2 %>%
+  map_df(is.na) %>% 
+  map_df(sum) %>% 
+  as.tibble()
+```
+
+
+```{r pm2_2006}
+pm2_2006 <- pm2 %>% 
+  filter(aar >= 2006) %>% 
+  pivot_wider(
+    names_from = aar,
+    values_from = pm2
+  )
+```
+
+```{r pm2_2008}
+pm2_2008 <- pm2 %>% 
+  filter(aar >= 2008) %>% 
+  pivot_wider(
+    names_from = aar,
+    values_from = pm2
+  )
+```
+
+Complete.cases fra 2006 til 2017 
+```{r 2006-2017}
+pm2_2006 %>% 
+  complete.cases() %>% 
+  sum()
+```
+
+Det er 197 complete cases i fra 2016 til 2017, det vil si antall kommuner som har data for alle
+årene f.o.m. 2006 t.o.m. 2017
+
+Complete.cases fra 2008 til 2017 
+```{r 2008-2017}
+pm2_2008 %>% 
+  complete.cases() %>% 
+  sum()
+```
+
+Det er 214 complete cases i fra 2008 til 2017, som vil si 214 kommuner om har data for alle årene f.o.m.
+2008 t.o.m. 201
+
+Vi ser at ved å velge perioden 2008-2017 istedenfor 2006-2017 får vi 17 ekstra complete.cases. Velger derfor
+å studere perioden 2008-2017.
+
+```{r clean up }
+# Time to clean up
+rm(pm2_raw)
+```
 
 
