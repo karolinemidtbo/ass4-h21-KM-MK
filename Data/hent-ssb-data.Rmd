@@ -350,42 +350,68 @@ uni_p_raw <- ApiData(
 ```
 
 
+```{r uni_p}
+uni_p <- uni_p_raw
+```
 
-```{r}
-uni_p_raw <- tibble(
-  knr = uni_p_raw$dataset$Region,
-  aar = uni_p_raw$dataset$Tid,
-  Kjonn = uni_p_raw$`09429: Personer 16 år og over, etter region, nivå, kjønn, statistikkvariabel og år`$kjønn,
-  nivaa = uni_p_raw$`09429: Personer 16 år og over, etter region, nivå, kjønn, statistikkvariabel og år`$nivå,
-  uni_p = uni_p_raw$dataset$value
+
+```{r tibble}
+uni_p <- tibble(
+  knr = uni_p$dataset$Region,
+  aar = uni_p$dataset$Tid,
+  Kjonn = uni_p$`09429: Personer 16 år og over, etter region, nivå, kjønn, statistikkvariabel og år`$kjønn,
+  nivaa = uni_p$`09429: Personer 16 år og over, etter region, nivå, kjønn, statistikkvariabel og år`$nivå,
+  uni_p = uni_p$dataset$value
 )
+
+head(uni_p, n=5)
 ```
 
-```{r}
-head(uni_p_raw, n=5)
-```
-
-```{r Fct_recode}
-uni_p_raw <- uni_p_raw %>% 
-   mutate(
-     nivaa = fct_recode(nivaa,
-                        "uni_k" = "Universitets- og høgskolenivå, kort",
-                        "uni_l" = "Universitets- og høgskolenivå, lang")
+```{r mutate}
+uni_p <- uni_p %>% 
+  mutate(
+    nivaa = fct_recode(nivaa,
+                       "uni_k" = "Universitets- og høgskolenivå, kort",
+                       "uni_l" = "Universitets- og høgskolenivå, lang")
   )
 ```
 
-```{r skifte}
- uni_p_raw <- uni_p_raw %>% 
-   mutate(
-     Kjonn = fct_recode(Kjonn, 
-                        "mf" = "Begge kjønn",
-                        "f" = "Kvinner",
-                        "m" = "Menn")
- )
-```
 
 ```{r}
-head(uni_p_raw, n = 8)
+uni_p <- uni_p %>% 
+  mutate(
+    Kjonn = fct_recode(Kjonn,
+                        "mf" = "Begge kjønn",
+                         "f" = "Kvinner",
+                         "m" = "Menn"))
 ```
+
+
+```{r pivot2}
+uni_p <- uni_p %>% 
+  pivot_wider(
+     id_cols = c(knr,aar),
+     names_from = c(nivaa, Kjonn),
+     values_from = uni_p
+     )
+```
+
+```{r head}
+head(uni_p_raw, n=5)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
