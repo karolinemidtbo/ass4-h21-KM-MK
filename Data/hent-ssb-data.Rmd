@@ -343,7 +343,7 @@ uni_p_raw <- ApiData(
   urlToData = "09429",
   Region = knr,
   Nivaa = c("03a", "04a"),
-  Kjonn = c("0"),
+  Kjonn = TRUE,
   ContentsCode = "PersonerProsent",
   Tid = c(as.character(2008:2017))
 )
@@ -365,9 +365,27 @@ uni_p_raw <- tibble(
 head(uni_p_raw, n=5)
 ```
 
-```{r}
-fct_recode(c("uni_k", "uni_l"))
+```{r Fct_recode}
+uni_p_raw <- uni_p_raw %>% 
+   mutate(
+     nivaa = fct_recode(nivaa,
+                        "uni_k" = "Universitets- og høgskolenivå, kort",
+                        "uni_l" = "Universitets- og høgskolenivå, lang")
+  )
 ```
 
+```{r skifte}
+ uni_p_raw <- uni_p_raw %>% 
+   mutate(
+     Kjonn = fct_recode(Kjonn, 
+                        "mf" = "Begge kjønn",
+                        "f" = "Kvinner",
+                        "m" = "Menn")
+ )
+```
+
+```{r}
+head(uni_p_raw, n = 8)
+```
 
 
