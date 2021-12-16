@@ -232,17 +232,45 @@ dim(pop_08_17)
 ```
 
 
-## Slå sammen de uliek datattene 
-```{r}
+## Slå sammen de to ulike datattene til ett
 
+```{r sammen slåing}
+pop_08_17_ya_p <- merge(pop_08_17, pop_08_17_ya)
+```
+
+Legger sammen navnene og finner dem i prosent
+```{r Slår sammen navnene }
+pop_08_17_ya_p <- pop_08_17_ya_p %>% 
+  mutate(Menn_ya_p = ya_menn/menn_t*100) %>% 
+  mutate(kvinner_ya_p = ya_kvinner/kvinner_t*100) %>% 
+  mutate(totalt_ya_p = ya_kvinner/totalt_t*100)
 ```
 
 
+```{r Velger ut variablene }
+pop_08_17_ya_p <- pop_08_17_ya_p %>% 
+select(knr, aar, Menn_ya_p, kvinner_ya_p, totalt_ya_p)
+```
+
+Sjekker om vi har gjort
+
+```{r}
+head(pop_08_17_ya_p, n = 5)
+```
 
 
+```{r merge}
+pm2 <- merge(pm2,pop_08_17_ya)
+```
 
+Rydder opp
+```{r cleaning}
+rm( pop_08_17_raw, pop_08_17_ya_raw, pm2_2006, pm2_2008) 
+```
 
-
+```{r mer cleaning}
+rm(test_string_tib,pop_08_17_ya)
+```
 
 
 
