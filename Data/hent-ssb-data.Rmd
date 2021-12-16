@@ -71,7 +71,7 @@ mutate(knavn = pm2_raw$desc$region) %>%
 ```{r Load - test-string-tib}
 load("test_string_tib.Rdata")
 # Legg inn regex mønster
-moenster <- '\\s+\\(\\d*[19-]\\d*[2019]\\)\\s*$'
+moenster <- '\\s*\\([\\d\\s-]*\\d*\\)\\s*$'
 ```
 
 ```{r pm2 mutate}
@@ -140,7 +140,7 @@ rm(pm2_raw)
 Datasett henting fra SSB 
 ```{r Yrkesaktiv alder}
 pop_08_17_ya_raw <- ApiData (
-  urlToData = "7459",
+  urlToData = "07459",
   Region = knr,
   Kjonn = c(1, 2),
   Alder = list("agg:TredeltGrupperingB2",
@@ -150,7 +150,60 @@ pop_08_17_ya_raw <- ApiData (
   select(-ContentsCode)
 ```
 
+```{r pivot_wider}
+pop_08_17_ya <- pop_08_17_ya_raw %>%
+  pivot_wider(
+    id_cols = c(Region, Tid),
+    names_from = Kjonn,
+    names_prefix = "sex",
+    values_from = value
+ )
+```
 
+```{r Endirng av navn }
+names(pop_08_17_ya)[[1]] <- "knr"
+names(pop_08_17_ya)[[2]] <- "aar"
+names(pop_08_17_ya)[[3]] <- "ya_menn"
+names(pop_08_17_ya)[[4]] <- "ya_kvinner"
+```
 
+```{r Lager en total }
+pop_08_17_ya <- pop_08_17_ya %>% 
+  mutate(ya_total = ya_menn + ya_kvinner)
+```
 
+```{r Antall observasjoner }
+dim(pop_08_17_ya)
+```
+
+```{r Henter inn data fra SSB - 0-17 og 18+}
+pop_08_17_ya_raw <- ApiData (
+  urlToData = "07459",
+  Region = knr,
+  Kjonn = c(1, 2),
+  Alder = list("agg:TodeltGrupperingB",
+                 c("H17", "H18")),
+  Tid = c(as.character(2008:2017))
+) $dataset %>% 
+  select(-ContentsCode)
+```
+
+```{r fordele på kjønn}
+pop_08_17 <- pop_08_17_ya_raw %>%
+  pivot_wider(
+    names_from = Kjonn,
+    values_from = value
+ )
+```
+
+```{r Skifte navn }
+names(pop_08_17)[[1]] <- "knr"
+names(pop_08_17)[[2]] <- "aar"
+names(pop_08_17)[[3]] <- "menn_t"
+names(pop_08_17)[[4]] <- "kvinner_t"
+```
+
+```{r Observasjoner}
+dim(pop_08_17 )
+```
 
