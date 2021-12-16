@@ -350,6 +350,7 @@ uni_p_raw <- ApiData(
 ```
 
 
+
 ```{r}
 uni_p_raw <- tibble(
   knr = uni_p_raw$dataset$Region,
@@ -359,7 +360,6 @@ uni_p_raw <- tibble(
   uni_p = uni_p_raw$dataset$value
 )
 ```
-
 
 ```{r}
 head(uni_p_raw, n=5)
