@@ -351,13 +351,7 @@ Uni_p_raw <- ApiData(
 ```
 
 
-```{r}
-uni_p <- uni_p_raw %>% 
-  pivot_wider(
-    names_from = Nivaa,
-    values_from = value
-  )
-```
+
 
 
 
