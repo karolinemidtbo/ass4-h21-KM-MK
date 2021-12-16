@@ -137,3 +137,20 @@ rm(pm2_raw)
 ```
 
 
+Datasett henting fra SSB 
+```{r Yrkesaktiv alder}
+pop_08_17_ya_raw <- ApiData (
+  urlToData = "7459",
+  Region = knr,
+  Kjonn = c(1, 2),
+  Alder = list("agg:TredeltGrupperingB2",
+                 c("F20-64")),
+  Tid = c(as.character(2008:2017))
+) $dataset %>% 
+  select(-ContentsCode)
+```
+
+
+
+
+
