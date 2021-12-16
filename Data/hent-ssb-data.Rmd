@@ -177,7 +177,7 @@ dim(pop_08_17_ya)
 ```
 
 ```{r Henter inn data fra SSB - 0-17 og 18+}
-pop_08_17_ya_raw <- ApiData (
+pop_08_17_raw <- ApiData (
   urlToData = "07459",
   Region = knr,
   Kjonn = c(1, 2),
@@ -189,7 +189,7 @@ pop_08_17_ya_raw <- ApiData (
 ```
 
 ```{r fordele på kjønn}
-pop_08_17 <- pop_08_17_ya_raw %>%
+pop_08_17 <- pop_08_17_raw %>%
   pivot_wider(
     names_from = Kjonn,
     values_from = value
@@ -198,12 +198,54 @@ pop_08_17 <- pop_08_17_ya_raw %>%
 
 ```{r Skifte navn }
 names(pop_08_17)[[1]] <- "knr"
-names(pop_08_17)[[2]] <- "aar"
-names(pop_08_17)[[3]] <- "menn_t"
-names(pop_08_17)[[4]] <- "kvinner_t"
+names(pop_08_17)[[2]] <- "alder"
+names(pop_08_17)[[3]] <- "aar"
+names(pop_08_17)[[4]] <- "menn"
+names(pop_08_17)[[5]] <- "kvinner"
 ```
 
-```{r Observasjoner}
-dim(pop_08_17 )
+
+```{r Endre variabler }
+pop_08_17 <- pop_08_17 %>%
+  pivot_wider(
+    names_from = alder,
+    values_from = c(kvinner, menn)
+ )
 ```
+
+
+```{r total }
+pop_08_17 <- pop_08_17 %>% 
+  mutate(menn_t = menn_H17 + menn_H18) %>% 
+  mutate(kvinner_t = kvinner_H17 + kvinner_H18) %>% 
+  mutate(totalt_t = menn_t + kvinner_t)
+```
+
+```{r velge ut hvilke variabler som skal være med}
+pop_08_17 <- pop_08_17 %>% 
+select(knr, aar, menn_t, kvinner_t, totalt_t)
+```
+
+
+```{r Observasjoner og variasjoner}
+dim(pop_08_17)
+```
+
+
+## Slå sammen de uliek datattene 
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
