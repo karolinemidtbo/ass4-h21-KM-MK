@@ -1,6 +1,6 @@
 ---
-title: "Assignment 3"
-subtitle: "Assignment 3 i kurset Data Science 2021"
+title: "Assignment 4"
+subtitle: "Assignment 4  i kurset Data Science 2021"
 author: 
   - "Karoline Midtbø"
   - "Morten Knutsen" 
@@ -147,7 +147,7 @@ pop_08_17_ya_raw <- ApiData (
                  c("F20-64")),
   Tid = c(as.character(2008:2017))
 ) $dataset %>% 
-  select(-ContentsCode)
+  select(-ContentsCode, -Alder)
 ```
 
 ```{r pivot_wider}
@@ -270,6 +270,93 @@ rm( pop_08_17_raw, pop_08_17_ya_raw, pm2_2006, pm2_2008)
 
 ```{r mer cleaning}
 rm(test_string_tib,pop_08_17_ya)
+```
+
+# desiler
+
+Vi henter inn data fordelt opp i desiler
+```{r datasett}
+kvintiler_08_17_raw <- ApiData(
+  urlToData = "12558",
+  Region = knr,
+  #  Desiler = c(1, 2, 9, 10),
+  Desiler = c("01", "02", "09", "10"),
+  #  ContentsCode = "VerdiDesil",
+  ContentsCode = "AndelHush",
+  InntektSkatt = "00",
+  Tid = c(
+    as.character(2008:2017)
+          )
+  )$dataset %>% 
+  select(Region, Desiler, Tid, value)
+```
+
+
+```{r Pivot_Wider desil}
+kvintiler_08_17 <- kvintiler_08_17_raw %>%
+  pivot_wider(
+    names_from = Desiler,
+    values_from = value)
+```
+
+
+```{r navngi variabel}
+names(kvintiler_08_17)[[1]] <- "knr"
+names(kvintiler_08_17)[[2]] <- "aar"
+names(kvintiler_08_17)[[3]] <- "Desil_1"
+names(kvintiler_08_17)[[4]] <- "Desil_2"
+names(kvintiler_08_17)[[5]] <- "Desil_9"
+names(kvintiler_08_17)[[6]] <- "Desil_10"
+```
+
+
+
+```{r muter variabel}
+kvintiler_08_17 <- kvintiler_08_17 %>% 
+  mutate(inc_k1 = Desil_1 + Desil_2) %>% 
+  mutate(inc_k5 = Desil_9 + Desil_10)
+```
+
+
+```{r valg av variabel}
+kvintiler_08_17 <- kvintiler_08_17 %>% 
+  mutate(inc_k1 = Desil_1 + Desil_2) %>% 
+  mutate(inc_k5 = Desil_9 + Desil_10)
+```
+
+
+```{r merge av datasett}
+pm2 <- merge(pm2, kvintiler_08_17)
+```
+
+Rydder opp
+```{r rydde}
+rm(kvintiler_08_17, kvintiler_08_17_raw, pop_08_17_ya_p)
+```
+
+
+
+# Utdanning
+
+```{r}
+Uni_p_raw <- ApiData(
+  urlToData = "09429",
+  Region = knr,
+  Nivaa = c("03a", "04a"),
+  Kjonn = c(1, 2),
+  ContentsCode = "Personer",
+  Tid = c(as.character(2008:2017))
+)$dataset %>% 
+  select(-ContentsCode, -value)
+```
+
+
+```{r}
+uni_p <- uni_p_raw %>% 
+  pivot_wider(
+    names_from = Nivaa,
+    values_from = value
+  )
 ```
 
 
