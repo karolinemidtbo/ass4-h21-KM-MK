@@ -20,7 +20,7 @@ editor_options:
   markdown: 
     wrap: 72
 ---
-## Oppgvave 4 
+# Oppgvave 4 
 
 ```{r Setup}
 suppressPackageStartupMessages({
@@ -32,11 +32,13 @@ knitr::opts_chunk$set(echo = FALSE, include = FALSE)
 ```
 
 
-
+##Loader inn data 
 ```{r load}
 load("knr.Rdata")
 ```
 
+
+I denne delen skal vi se på prisen per kvm. 
 ```{r pm2_raw}
 pm2_raw <- ApiData(
   urlToData = "06035",
@@ -57,6 +59,11 @@ pm2 <- pm2_raw$dataset %>%
     pm2 = value) 
 ```
 
+```{r Tibblepm2}
+head(pm2)
+```
+
+
 ```{r Endre navn til desc}
 names(pm2_raw)[[1]] <- "desc"
 ```
@@ -67,6 +74,8 @@ mutate(knavn = pm2_raw$desc$region) %>%
   group_by(knr) %>% 
   select(knr, aar, pm2, knavn)
 ```
+### I denne delen har vi valgt ut hva vi skal ha som variabler, der vi har valt vekk *boligtyper* og *contentscode*. 
+
 
 ```{r Load - test-string-tib}
 load("test_string_tib.Rdata")
@@ -81,7 +90,7 @@ knavn = str_replace(knavn, moenster, "")
 )
 ```
 
-Sjekke hvor mange NA verdier det er i pm2
+### Sjekke hvor mange NA verdier det er i pm2
 ```{r pm2}
 pm2 %>%
   map_df(is.na) %>% 
@@ -99,6 +108,7 @@ pm2_2006 <- pm2 %>%
   )
 ```
 
+
 ```{r pm2_2008}
 pm2_2008 <- pm2 %>% 
   filter(aar >= 2008) %>% 
@@ -108,7 +118,7 @@ pm2_2008 <- pm2 %>%
   )
 ```
 
-Complete.cases fra 2006 til 2017 
+### Complete.cases fra 2006 til 2017 
 ```{r 2006-2017}
 pm2_2006 %>% 
   complete.cases() %>% 
@@ -131,13 +141,22 @@ Det er 214 complete cases i fra 2008 til 2017, som vil si 214 kommuner om har da
 Vi ser at ved å velge perioden 2008-2017 istedenfor 2006-2017 får vi 17 ekstra complete.cases. Velger derfor
 å studere perioden 2008-2017.
 
+
+```{r}
+pm2 <- pm2 %>% 
+  left_join(pm2_2008) %>% 
+  na.omit()
+```
+
+
+### Fjerner data
 ```{r clean up }
 # Time to clean up
 rm(pm2_raw)
 ```
 
 
-Datasett henting fra SSB 
+### Datasett henting fra SSB 
 ```{r Yrkesaktiv alder}
 pop_08_17_ya_raw <- ApiData (
   urlToData = "07459",
@@ -176,6 +195,12 @@ pop_08_17_ya <- pop_08_17_ya %>%
 dim(pop_08_17_ya)
 ```
 
+### sjekker navn 
+```{r sjekk av navn på variabler}
+names(pop_08_17_ya)
+```
+
+#### Henter data fra SSB om 0-17 0g 18+ 
 ```{r Henter inn data fra SSB - 0-17 og 18+}
 pop_08_17_raw <- ApiData (
   urlToData = "07459",
@@ -227,18 +252,23 @@ select(knr, aar, menn_t, kvinner_t, totalt_t)
 ```
 
 
+
 ```{r Observasjoner og variasjoner}
 dim(pop_08_17)
 ```
 
+```{r sjekk av navn å vari.}
+names(pop_08_17)
+```
 
-## Slå sammen de to ulike datattene til ett
+
+## merge data til pop_08_17_ya_p
 
 ```{r sammen slåing}
 pop_08_17_ya_p <- merge(pop_08_17, pop_08_17_ya)
 ```
 
-Legger sammen navnene og finner dem i prosent
+### Legger sammen navnene og finner dem i prosent
 ```{r Slår sammen navnene }
 pop_08_17_ya_p <- pop_08_17_ya_p %>% 
   mutate(Menn_ya_p = ya_menn/menn_t*100) %>% 
@@ -252,19 +282,25 @@ pop_08_17_ya_p <- pop_08_17_ya_p %>%
 select(knr, aar, Menn_ya_p, kvinner_ya_p, totalt_ya_p)
 ```
 
-Sjekker om vi har gjort
+### Sjekker 
 
 ```{r}
 head(pop_08_17_ya_p, n = 5)
 ```
 
-
-```{r merge}
+### Merger data til pm2
+```{r}
 pm2 <- merge(pm2,pop_08_17_ya)
 ```
 
-Rydder opp
-```{r cleaning}
+
+```{r}
+pm2 <- pm2 %>% 
+  select(knr, knavn, aar, pm2, ya_menn, ya_kvinner, ya_total)
+```
+
+### Rydder opp
+```{r cleaning1}
 rm( pop_08_17_raw, pop_08_17_ya_raw, pm2_2006, pm2_2008) 
 ```
 
@@ -272,11 +308,11 @@ rm( pop_08_17_raw, pop_08_17_ya_raw, pm2_2006, pm2_2008)
 rm(test_string_tib,pop_08_17_ya)
 ```
 
-# desiler
+# Desiler
 
 Vi henter inn data fordelt opp i desiler
 ```{r datasett}
-kvintiler_08_17_raw <- ApiData(
+inc_08_17_raw <- ApiData(
   urlToData = "12558",
   Region = knr,
   #  Desiler = c(1, 2, 9, 10),
@@ -293,7 +329,7 @@ kvintiler_08_17_raw <- ApiData(
 
 
 ```{r Pivot_Wider desil}
-kvintiler_08_17 <- kvintiler_08_17_raw %>%
+inc_08_17 <- inc_08_17_raw %>%
   pivot_wider(
     names_from = Desiler,
     values_from = value)
@@ -301,37 +337,41 @@ kvintiler_08_17 <- kvintiler_08_17_raw %>%
 
 
 ```{r navngi variabel}
-names(kvintiler_08_17)[[1]] <- "knr"
-names(kvintiler_08_17)[[2]] <- "aar"
-names(kvintiler_08_17)[[3]] <- "Desil_1"
-names(kvintiler_08_17)[[4]] <- "Desil_2"
-names(kvintiler_08_17)[[5]] <- "Desil_9"
-names(kvintiler_08_17)[[6]] <- "Desil_10"
+names(inc_08_17)[[1]] <- "knr"
+names(inc_08_17)[[2]] <- "aar"
+names(inc_08_17)[[3]] <- "Desil_1"
+names(inc_08_17)[[4]] <- "Desil_2"
+names(inc_08_17)[[5]] <- "Desil_9"
+names(inc_08_17)[[6]] <- "Desil_10"
 ```
 
 
-
-```{r muter variabel}
-kvintiler_08_17 <- kvintiler_08_17 %>% 
+```{r mutate på variabler}
+inc_08_17 <- inc_08_17 %>% 
   mutate(inc_k1 = Desil_1 + Desil_2) %>% 
   mutate(inc_k5 = Desil_9 + Desil_10)
 ```
 
-
-```{r valg av variabel}
-kvintiler_08_17 <- kvintiler_08_17 %>% 
-  mutate(inc_k1 = Desil_1 + Desil_2) %>% 
-  mutate(inc_k5 = Desil_9 + Desil_10)
+```{r velger ut variabler}
+inc_08_17 <- inc_08_17 %>% 
+  select(knr, aar, inc_k1, inc_k5)
 ```
 
+```{r Sjeker navnene}
+names(inc_08_17)
+```
+
+```{r sjekk av div og var}
+dim(inc_08_17)
+```
 
 ```{r merge av datasett}
-pm2 <- merge(pm2, kvintiler_08_17)
+pm2 <- merge(pm2, inc_08_17)
 ```
 
 Rydder opp
 ```{r rydde}
-rm(kvintiler_08_17, kvintiler_08_17_raw, pop_08_17_ya_p)
+rm(inc_08_17,inc_08_17_raw, pop_08_17_ya_p, pop_08_17)
 ```
 
 
@@ -397,15 +437,65 @@ uni_p <- uni_p %>%
 ```
 
 ```{r head}
-head(uni_p_raw, n=5)
+head(uni_p, n=8)
+```
+
+```{r antall observasjoner og variabler}
+dim(uni_p)
+```
+
+```{r merge uni_p til pm2}
+pm2 <- merge(pm2,uni_p)
+```
+
+
+```{r cleaning}
+rm(pop_08_17, uni_p, uni_p_raw)
 ```
 
 
 
+## Handelsomsetning per innbygger 
+
+```{r Hente datasett}
+trade_08_17 <- ApiData (
+  urlToData = "04776",
+  Region = knr,
+  Tid = c(as.character(2008:2017))
+) $dataset %>% 
+  select(-ContentsCode)
+```
 
 
+```{r lager tibble}
+trade_08_17 <- tibble(
+  knr = trade_08_17$Region,
+  aar = trade_08_17$Tid,
+  Trade_p = trade_08_17$value
+)
+```
+
+```{r skrifter navn til trade_pc}
+trade_pc <- trade_08_17 
+```
 
 
+```{r}
+pm2 <- merge(pm2,trade_pc)
+```
+
+```{r}
+rm(trade_08_17,trade_pc)
+```
+
+```{r}
+dim(pm2)
+```
+
+
+```{r}
+
+```
 
 
 
