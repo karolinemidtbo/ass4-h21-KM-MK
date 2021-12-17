@@ -336,19 +336,76 @@ rm(kvintiler_08_17, kvintiler_08_17_raw, pop_08_17_ya_p)
 
 
 
-# Utdanning
+## Utdanning
 
-```{r}
-Uni_p_raw <- ApiData(
+```{r Henter inn data fra SSB-utdanning}
+uni_p_raw <- ApiData(
   urlToData = "09429",
   Region = knr,
   Nivaa = c("03a", "04a"),
-  Kjonn = c(1, 2),
-  ContentsCode = "Personer",
+  Kjonn = TRUE,
+  ContentsCode = "PersonerProsent",
   Tid = c(as.character(2008:2017))
-)$dataset %>% 
-  select(-ContentsCode, -value)
+)
 ```
+
+
+```{r uni_p}
+uni_p <- uni_p_raw
+```
+
+
+```{r tibble}
+uni_p <- tibble(
+  knr = uni_p$dataset$Region,
+  aar = uni_p$dataset$Tid,
+  Kjonn = uni_p$`09429: Personer 16 år og over, etter region, nivå, kjønn, statistikkvariabel og år`$kjønn,
+  nivaa = uni_p$`09429: Personer 16 år og over, etter region, nivå, kjønn, statistikkvariabel og år`$nivå,
+  uni_p = uni_p$dataset$value
+)
+
+head(uni_p, n=5)
+```
+
+```{r mutate}
+uni_p <- uni_p %>% 
+  mutate(
+    nivaa = fct_recode(nivaa,
+                       "uni_k" = "Universitets- og høgskolenivå, kort",
+                       "uni_l" = "Universitets- og høgskolenivå, lang")
+  )
+```
+
+
+```{r}
+uni_p <- uni_p %>% 
+  mutate(
+    Kjonn = fct_recode(Kjonn,
+                        "mf" = "Begge kjønn",
+                         "f" = "Kvinner",
+                         "m" = "Menn"))
+```
+
+
+```{r pivot2}
+uni_p <- uni_p %>% 
+  pivot_wider(
+     id_cols = c(knr,aar),
+     names_from = c(nivaa, Kjonn),
+     values_from = uni_p
+     )
+```
+
+```{r head}
+head(uni_p_raw, n=5)
+```
+
+
+
+
+
+
+
 
 
 
