@@ -493,14 +493,29 @@ dim(pm2)
 ```
 
 
-```{r}
+```{r sjekker at navnenen stemmer}
+names(pm2)
+```
 
+```{r sjekekr inc i head}
+pm2 %>% 
+  select(knr:inc_k5) %>% 
+  head(n=8)
 ```
 
 
 
+```{r sjekker trade i head}
+pm2 %>% 
+  select(uni_k_mf:Trade_p) %>% 
+  head(n=8)
+
+```
 
 
+```{r lager csv}
+write.csv(pm2, "pm2.csv")
+```
 
 
 
