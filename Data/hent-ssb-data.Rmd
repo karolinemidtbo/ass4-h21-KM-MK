@@ -290,13 +290,13 @@ head(pop_08_17_ya_p, n = 5)
 
 ### Merger data til pm2
 ```{r}
-pm2 <- merge(pm2,pop_08_17_ya)
+pm2 <- merge(pm2,pop_08_17_ya_p)
 ```
 
 
 ```{r}
 pm2 <- pm2 %>% 
-  select(knr, knavn, aar, pm2, ya_menn, ya_kvinner, ya_total)
+  select(knr, knavn, aar, pm2, Menn_ya_p, kvinner_ya_p, totalt_ya_p)
 ```
 
 ### Rydder opp
