@@ -170,7 +170,14 @@ pm2 %>%
 
 # i.
 
+mod2 <-
+```{r}
+mod2 <- 'fnr ~ aar_f + totalt_ya_p + inc_k1 + inc_k5 + uni_k_mf + uni_l_mf + Trade_pc_100K'
+```
 
+```{r}
+
+```
 
 
 
