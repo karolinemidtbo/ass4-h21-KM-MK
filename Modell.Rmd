@@ -1,0 +1,36 @@
+---
+title: "Assignment 4"
+subtitle: "Assignment 4  i kurset Data Science 2021"
+author: 
+  - "Karoline Midtbø"
+  - "Morten Knutsen" 
+email: 
+  - "579729@stud.hvl.no" 
+  - "575413@stud.hvl.no"
+csl: apa-no-ampersand.csl
+fontsize: 12pt
+output:
+  pdf_document: default
+  word_document: default
+  html_document:
+    df_print: paged
+  html_notebook: default  
+lang: nb-NO
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r}
+suppressPackageStartupMessages({
+library(tidyverse)
+library(lubridate)
+library(modelr)
+library(broom)
+library(lmtest)
+library(sandwich)
+library(viridis)
+})
+```
+
+
