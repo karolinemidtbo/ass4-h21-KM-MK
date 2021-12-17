@@ -201,7 +201,7 @@ theme(legend.position = 'bottom') +
 
 ### i + ii
 
-I modell 2 er ikke kvaliteten helt optimal, fordi den mangler noen variabler. Det kan skyldes heterodastisitet at det er en stor variasjon. Rogaland er et stort residual. 
+I modell 2 er ikke kvaliteten helt optimal, fordi den mangler noen variabler. Det kan skyldes heteroskedastisitet at det er en stor variasjon. Rogaland er et stort residual. 
 
 
 ### iii
@@ -231,10 +231,14 @@ theme(legend.position = 'bottom')
 ```
 ## ii 
 
-De kommunene som ligger nærmst stavanger overvuderes. 
+De kommunene som ligger nærmest Stavanger overvurderes. 
 
 
 
+# Modell for hvert år 
+
+
+## i. 
 
 
 
