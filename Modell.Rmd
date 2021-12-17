@@ -153,7 +153,7 @@ pm2 <- pm2 %>%
 
 ## vii til x.
 Finner gjennomsnittet til hvert fylke hvert år.
-```{r}
+```{r ggplot1}
 pm2 %>% 
   unnest(c(fylke)) %>% 
   group_by(fylke, aar_d) %>% 
@@ -168,16 +168,77 @@ pm2 %>%
 
 # Dummy fylke og år
 
-# i.
+# i og ii.
 
-mod2 <-
-```{r}
-mod2 <- 'fnr ~ aar_f + totalt_ya_p + inc_k1 + inc_k5 + uni_k_mf + uni_l_mf + Trade_pc_100K'
+
+```{r modell 2}
+mod2 <- 'pm2 ~ aar_f*fnr + totalt_ya_p + inc_k1 + inc_k5 + uni_k_mf + uni_l_mf + Trade_pc_100K'
+lm2 <- lm(mod2, data = pm2)
+summary(lm2)
 ```
 
-```{r}
 
+## iii. 
+```{r mutate lm2}
+pm2 <- pm2 %>% 
+  mutate(res_m2 = resid(lm2))
 ```
+
+## iv. 
+
+DEL-PLOT 
+```{r del-plot av fylkene}
+pm2 %>% filter(fnr %in% c("01", "02", "04", "11", "12")) %>%
+ggplot(mapping = aes(x = aar_d, y = res_m2)) +
+geom_line(aes(group = knavn)) +
+scale_size_manual(values = c(seq(2.0, 0.5, by = -0.1))) +
+geom_hline(yintercept = 0) +
+theme(legend.position = 'bottom') +
+  facet_wrap(~fylke)
+```
+
+
+
+### i + ii
+
+I modell 2 er ikke kvaliteten helt optimal, fordi den mangler noen variabler. Det kan skyldes heterodastisitet at det er en stor variasjon. Rogaland er et stort residual. 
+
+
+### iii
+
+Mangler noen farger for kommunenen. 
+
+```{r fylke 11}
+pm2 %>% filter(fnr %in% c("11")) %>%
+ggplot(mapping = aes(x = aar_d, y = res_m2)) +
+scale_color_viridis(discrete = TRUE, option = "D") +
+geom_line(aes(group = knavn, colour = knavn, size =knavn)) +
+scale_size_manual(values = c(seq(2.0, 0.5, by = -0.1))) +
+geom_hline(yintercept = 0) +
+theme(legend.position = 'bottom')
+```
+
+# i 
+
+```{r}
+pm2 %>% filter(knr %in% c("1119", "1120", "1127", "1121", "1130", "1135", "1106", "1149")) %>%
+ggplot(mapping = aes(x = aar_d, y = res_m2)) +
+scale_color_viridis(discrete = TRUE, option = "H") +
+geom_line(aes(group = knavn, colour = knavn, size =knavn)) +
+scale_size_manual(values = c(seq(2.0, 0.5, by = -0.1))) +
+geom_hline(yintercept = 0) +
+theme(legend.position = 'bottom')
+```
+## ii 
+
+De kommunene som ligger nærmst stavanger overvuderes. 
+
+
+
+
+
+
+
 
 
 
