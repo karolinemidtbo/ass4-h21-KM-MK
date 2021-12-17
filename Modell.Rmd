@@ -34,3 +34,147 @@ library(viridis)
 ```
 
 
+```{r}
+knitr::opts_chunk$set(echo = FALSE, include = FALSE)
+```
+
+### Legger til pm2
+```{r legger til dataen pm2}
+pm2 <- read_csv("data/pm2.csv", show_col_types = FALSE)
+```
+
+```{r Mutere og string}
+pm2 <- pm2 %>% 
+  mutate(
+    fnr = str_sub(knr, 1,2),
+    aar_f = str_sub(aar)
+  )
+```
+
+```{r viser i tibble}
+head(pm2)
+```
+
+```{r parsefactor}
+pm2 %>% 
+  mutate(
+    fnr = parse_factor(fnr, levels = fnr),
+    aar_f = parse_factor(aar_f, levels = aar_f)
+  )
+```
+
+```{r Muterer}
+pm2 <- pm2 %>% 
+  mutate(
+    Trade_pc_100K = Trade_p/100000
+  ) 
+``` 
+
+
+```{r Viser i tabell}
+head(pm2, n = 4)
+```
+
+## i 
+```{r legger til i mod1}
+mod1 <- 'pm2 ~ aar_f + totalt_ya_p + inc_k1 + inc_k5 + uni_k_mf + uni_l_mf + Trade_pc_100K'
+```
+
+```{r}
+lm1 <- lm(mod1, data = pm2, subset = complete.cases(pm2))
+```
+
+```{r}
+summary(lm1)
+```
+
+```{r}
+pm2 <- pm2%>% 
+  add_residuals(lm1)
+```
+
+
+## i. Vi ser at aar_f2009  ikke er signifikant. Alle de andre årene er signifikante på et 0.1% nivå.. Vi ser at koeffisientene fra aar_f2009 og frem til aar_f2017 øker fra år til år. 
+
+
+## ii.
+
+godt spørsmål
+
+# heteroskedastisitet
+
+## i. 
+
+```{r}
+bptest(lm1)
+```
+
+
+## ii. 
+Ja, vi har problemer med heteroskedas
+
+## iii. 
+
+```{r}
+coeftest(lm1)
+```
+
+```{r}
+vcovHC(lm1)
+```
+
+```{r}
+vcov(lm1)
+```
+
+## iv. 
+
+Dette er gjort i tidligere oppgave. 
+
+## v. 
+
+```{r}
+pm2 <- pm2 %>% 
+  mutate(aar_d = make_date(aar))
+```
+
+### iv. 
+
+```{r muterer }
+pm2 <- pm2 %>% 
+  mutate(fylke = substr(knr, start=1, stop = 2))
+```
+
+```{r filtrer ut fylkene}
+pm2 <- pm2 %>% 
+  filter(fylke %in% c("01", "02", "03", "11", "12")
+  )
+```
+
+## vii til x.
+Finner gjennomsnittet til hvert fylke hvert år.
+```{r}
+pm2 %>% 
+  unnest(c(fylke)) %>% 
+  group_by(fylke, aar_d) %>% 
+  summarise(mean_fylke = mean(resid)
+           ) %>% 
+  ggplot(aes(x = aar_d, y = mean_fylke, colour = fylke)) +
+    geom_line(lwd = 1) +
+ geom_hline(yintercept = 0, colour = "white") +
+  theme(legend.position = "bottom")
+```
+
+
+# Dummy fylke og år
+
+# i.
+
+
+
+
+
+
+
+
+
