@@ -33,12 +33,12 @@ library(viridis)
 })
 ```
 
-
 ```{r}
 knitr::opts_chunk$set(echo = FALSE, include = FALSE)
 ```
 
 ### Legger til pm2
+
 ```{r legger til dataen pm2}
 pm2 <- read_csv("data/pm2.csv", show_col_types = FALSE)
 ```
@@ -68,14 +68,14 @@ pm2 <- pm2 %>%
   mutate(
     Trade_pc_100K = Trade_p/100000
   ) 
-``` 
-
+```
 
 ```{r Viser i tabell}
 head(pm2, n = 4)
 ```
 
-## i 
+## i
+
 ```{r legger til i mod1}
 mod1 <- 'pm2 ~ aar_f + totalt_ya_p + inc_k1 + inc_k5 + uni_k_mf + uni_l_mf + Trade_pc_100K'
 ```
@@ -93,9 +93,11 @@ pm2 <- pm2%>%
   add_residuals(lm1)
 ```
 
+i\.
 
-## i. Vi ser at aar_f2009  ikke er signifikant. Alle de andre årene er signifikante på et 0.1% nivå.. Vi ser at koeffisientene fra aar_f2009 og frem til aar_f2017 øker fra år til år. 
-
+Vi ser at aar_f2009 ikke er signifikant. Alle de andre årene er
+signifikante på et 0.1% nivå.. Vi ser at koeffisientene fra aar_f2009 og
+frem til aar_f2017 øker fra år til år.
 
 ## ii.
 
@@ -103,17 +105,17 @@ godt spørsmål
 
 # heteroskedastisitet
 
-## i. 
+## i.
 
 ```{r}
 bptest(lm1)
 ```
 
+## ii.
 
-## ii. 
 Ja, vi har problemer med heteroskedas
 
-## iii. 
+## iii.
 
 ```{r}
 coeftest(lm1)
@@ -127,18 +129,18 @@ vcovHC(lm1)
 vcov(lm1)
 ```
 
-## iv. 
+## iv.
 
-Dette er gjort i tidligere oppgave. 
+Dette er gjort i tidligere oppgave.
 
-## v. 
+## v.
 
 ```{r}
 pm2 <- pm2 %>% 
   mutate(aar_d = make_date(aar))
 ```
 
-### iv. 
+### iv.
 
 ```{r muterer }
 pm2 <- pm2 %>% 
@@ -146,16 +148,23 @@ pm2 <- pm2 %>%
 ```
 
 ```{r filtrer ut fylkene}
-pm2 <- pm2 %>% 
-  filter(fylke %in% c("01", "02", "03", "11", "12")
-  )
+# Denne er ikke smart! Her overskriver dere pm2 med en ny versjon 
+# som bare inneholder disse fylkene. Bedre å vbare filtrere ut før
+# plotene under. Så har dere komplett pm2 til videre arbeide
+# pm2 <- pm2 %>% 
+#   filter(fylke %in% c("01", "02", "03", "11", "12")
+#   )
 ```
 
 ## vii til x.
+
 Finner gjennomsnittet til hvert fylke hvert år.
+
 ```{r ggplot1}
 pm2 %>% 
-  unnest(c(fylke)) %>% 
+  filter(fylke %in% c("01", "02", "03", "11", "12")) %>% 
+  # Derre har ikke nest() ennå så unødvendig
+  #unnest(c(fylke)) %>% 
   group_by(fylke, aar_d) %>% 
   summarise(mean_fylke = mean(resid)
            ) %>% 
@@ -165,11 +174,9 @@ pm2 %>%
   theme(legend.position = "bottom")
 ```
 
-
 # Dummy fylke og år
 
 # i og ii.
-
 
 ```{r modell 2}
 mod2 <- 'pm2 ~ aar_f*fnr + totalt_ya_p + inc_k1 + inc_k5 + uni_k_mf + uni_l_mf + Trade_pc_100K'
@@ -177,16 +184,17 @@ lm2 <- lm(mod2, data = pm2)
 summary(lm2)
 ```
 
+## iii.
 
-## iii. 
 ```{r mutate lm2}
 pm2 <- pm2 %>% 
   mutate(res_m2 = resid(lm2))
 ```
 
-## iv. 
+## iv.
 
-DEL-PLOT 
+DEL-PLOT
+
 ```{r del-plot av fylkene}
 pm2 %>% filter(fnr %in% c("01", "02", "04", "11", "12")) %>%
 ggplot(mapping = aes(x = aar_d, y = res_m2)) +
@@ -197,16 +205,15 @@ theme(legend.position = 'bottom') +
   facet_wrap(~fylke)
 ```
 
-
-
 ### i + ii
 
-I modell 2 er ikke kvaliteten helt optimal, fordi den mangler noen variabler. Det kan skyldes heteroskedastisitet at det er en stor variasjon. Rogaland er et stort residual. 
-
+I modell 2 er ikke kvaliteten helt optimal, fordi den mangler noen
+variabler. Det kan skyldes heteroskedastisitet at det er en stor
+variasjon. Rogaland er et stort residual.
 
 ### iii
 
-Mangler noen farger for kommunenen. 
+Mangler noen farger for kommunenen.
 
 ```{r fylke 11}
 pm2 %>% filter(fnr %in% c("11")) %>%
@@ -218,7 +225,7 @@ geom_hline(yintercept = 0) +
 theme(legend.position = 'bottom')
 ```
 
-# i 
+# i
 
 ```{r}
 pm2 %>% filter(knr %in% c("1119", "1120", "1127", "1121", "1130", "1135", "1106", "1149")) %>%
@@ -229,29 +236,34 @@ scale_size_manual(values = c(seq(2.0, 0.5, by = -0.1))) +
 geom_hline(yintercept = 0) +
 theme(legend.position = 'bottom')
 ```
-## ii 
 
-De kommunene som ligger nærmest Stavanger overvurderes. 
+## ii
 
+De kommunene som ligger nærmest Stavanger overvurderes.
 
+# Modell for hvert år
 
-# Modell for hvert år 
+## i)
 
-
-## i) 
-
-```{r pm2 til pm2_n}
+```{r}
 pm2_n <- pm2 %>% 
-  group_by(aar) %>%
-  select(pm2, fnr, knr, aar, aar_f, Menn_ya_p, kvinner_ya_p, totalt_ya_p, inc_k1, inc_k5, uni_k_mf, uni_l_mf, Trade_pc_100K) %>% 
-  nest()
+  # Lager en date varaiant av aar. Blir enklere å plotte
+  mutate(
+    aar_d = date(paste0(aar, "-01-01"))
+  )
 ```
 
+```{r pm2 til pm2_n}
+# Velg variablene først så gruppering mht. aar_d
+pm2_n <- pm2 %>% 
+  select(pm2, fnr, knr, aar, aar_f, aar_d, Menn_ya_p, kvinner_ya_p, totalt_ya_p, inc_k1, inc_k5, uni_k_mf, uni_l_mf, Trade_pc_100K) %>% 
+  group_by(aar_d) %>%
+  nest()
+```
 
 ```{r pm2_n}
 pm2_n
 ```
-
 
 ```{r sjekker data i head}
 pm2_n$data[[1]] %>%
@@ -262,29 +274,28 @@ head(n = 5)
 dim(pm2_n)
 ```
 
-
 ```{r legger til a_df}
+# Dere må bruke a_df som argument, ellers ingen funksjon
 kom_model <- function(a_df) {
-  lm(pm2 ~ fnr + totalt_ya_p + inc_k1 + inc_k5 + uni_k_mf + uni_l_mf + Trade_pc_100K, data = pm2)
+  lm(pm2 ~ fnr + totalt_ya_p + inc_k1 + inc_k5 + uni_k_mf + uni_l_mf + Trade_pc_100K, data = a_df)
 }
 ```
-
 
 ```{r muatet model}
 pm2_n <- pm2_n %>% 
   mutate(model = map(data, .f = kom_model)) 
 ```
 
-
 ```{r summary}
-kom_model(pm2_n$aar) %>% 
+# kom_model(pm2_n$aar) %>% 
+#   summary()
+pm2_n$model[[1]] %>% 
   summary()
 ```
 
-
 ```{r pm2 tibble}
 pm2_n %>% 
-  filter(aar%in% c("2008")) %>% 
+  filter(aar_d %in% c("2008-01-01")) %>% 
   .$model %>% 
   map_df(glance) %>% 
   print()
@@ -292,7 +303,8 @@ pm2_n %>%
 
 ```{r mod_sum}
 mod_sum <- pm2_n %>% 
-  filter(aar %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017")) %>% 
+  # Ikke nødvendig
+  # filter(aar %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017")) %>% 
   mutate(mod_summary = map(.x = model, .f = glance)) %>% 
   unnest(mod_summary) %>% 
   print()
@@ -300,10 +312,92 @@ mod_sum <- pm2_n %>%
 
 ### ii)
 
+## Siste delen mangler
+
 får ikke til siste del.
-```{r}
+
+```{r, eval = FALSE}
+# Denne er litt tricky derfor hint ;-)
 coef_df <- mod_sum %>% 
   map_df() %>% 
   as.tibble()
 ```
 
+Her er de nødvendige besvergelsene
+
+```{r, echo = TRUE, include = TRUE}
+coef_df <- mod_sum$model %>% 
+  # .f = 1 gir oss første element i liste model i mod_sum
+  # .f = 2 gir oss andre elemnet som er residualene 
+  # ikke så intuitivt derfor hint ;-)
+  map_df(.f = 1) %>% 
+  tibble()
+```
+
+```{r}
+#View(coef_df)
+```
+
+i.  Lag en ny variabel av type date i `coef_df` som angir år.
+
+```{r}
+coef_df <- coef_df %>% 
+  mutate(
+    aar = ymd(paste(2008:2017, "-01-01", sep = ""))
+  ) %>% 
+  select(aar, everything())
+```
+
+i.  Pivot_longer `coef_df` til `coef_df_long.`
+
+```{r}
+coef_df_long <- coef_df %>% 
+  pivot_longer(
+    cols = `(Intercept)`:`Trade_pc_100K`,
+    names_to = "variables",
+    values_to = "coef"
+  )
+```
+
+i.  Lag så et plot av fylke-faktorvariablenes koeffisienter for fylkene
+    "fnr02", "fnr03", "fnr04", "fnr10", "fnr11", "fnr12", "fnr14" fra år
+    2008 til 2017.
+ii. Hva sier plot-et oss om prisutviklingen i disse fylkene?
+iii. Hva skjedde i 2014?
+
+Her er kode for å lage plottet:
+
+```{r, echo = TRUE, include = TRUE}
+coef_df_long %>% 
+  select(aar, variables, coef) %>% 
+  filter(
+    variables %in% c("fnr02", "fnr03", "fnr04", "fnr10", "fnr11", "fnr12", "fnr14")
+    ) %>% 
+  ggplot(mapping = aes(x = aar, y = coef, colour = variables)) +
+  scale_color_viridis(discrete = TRUE, option = "D") +
+  geom_line(aes(group = variables), lwd = 1) +
+  theme(legend.position = 'bottom')
+```
+
+i.  Lag et plot tilsvarende det ovenfor for fnr, men nå for variablene
+    Total_ya_p, inc_k1, inc_k5, uni_k\_mf, uni_l\_mf og Trade_pc_100K.
+    (Plottet er gjengitt nedenfor, dere skal gjenskape det vha ggplot)
+ii. Diskuter om koeffisientene ser ut til å være stabile over tid.
+
+```{r, include = TRUE}
+coef_df_long %>% 
+  select(aar, variables, coef) %>% 
+  filter(variables %in% c("Total_ya_p", "inc_k1", "inc_k5",
+                    "uni_k_mf", "uni_l_mf", "Trade_pc_100K")
+         ) %>% 
+  ggplot(
+    mapping = aes(x = aar, y = coef, colour = variables)
+    ) +
+  scale_color_viridis(discrete = TRUE, option = "D") +
+  geom_line(aes(group = variables), lwd = 1) +
+  theme(legend.position = 'bottom')
+```
+
+```{r}
+#siste
+```

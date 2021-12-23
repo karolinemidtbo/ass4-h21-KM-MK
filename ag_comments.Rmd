@@ -1,0 +1,10 @@
+---
+title: "ag comments"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+-   Se hva jeg har lagt inn for den siste delen som dere ikke fikk til. Dette er viktige ting å beherske for en «Data Scientist» ;-)
+-   Dere har litt andre data enn oss andre så resultatet blir bare sånn ca. likt, men det får holde.
