@@ -28,7 +28,7 @@ library(PxWebApiData)
 library(tidyverse)
 library(lubridate)
 })
-knitr::opts_chunk$set(echo = FALSE, include = FALSE)
+#knitr::opts_chunk$set(echo = FALSE, include = FALSE)
 ```
 
 
@@ -513,7 +513,8 @@ pm2 %>%
 
 
 ```{r lager csv}
-write.csv(pm2, "pm2.csv")
+#Bruke heller write_csv() fra tidyverse
+write_csv(pm2, "pm2.csv")
 ```
 
 ```{r}
