@@ -509,13 +509,17 @@ pm2 %>%
 pm2 %>% 
   select(uni_k_mf:Trade_p) %>% 
   head(n=8)
-
 ```
 
 
 ```{r lager csv}
 write.csv(pm2, "pm2.csv")
 ```
+
+```{r}
+#siste
+```
+
 
 
 

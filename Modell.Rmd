@@ -33,12 +33,12 @@ library(viridis)
 })
 ```
 
-
 ```{r}
 knitr::opts_chunk$set(echo = FALSE, include = FALSE)
 ```
 
 ### Legger til pm2
+
 ```{r legger til dataen pm2}
 pm2 <- read_csv("data/pm2.csv", show_col_types = FALSE)
 ```
@@ -68,14 +68,14 @@ pm2 <- pm2 %>%
   mutate(
     Trade_pc_100K = Trade_p/100000
   ) 
-``` 
-
+```
 
 ```{r Viser i tabell}
 head(pm2, n = 4)
 ```
 
-## i 
+## i
+
 ```{r legger til i mod1}
 mod1 <- 'pm2 ~ aar_f + totalt_ya_p + inc_k1 + inc_k5 + uni_k_mf + uni_l_mf + Trade_pc_100K'
 ```
@@ -93,9 +93,7 @@ pm2 <- pm2%>%
   add_residuals(lm1)
 ```
 
-
-## i. Vi ser at aar_f2009  ikke er signifikant. Alle de andre årene er signifikante på et 0.1% nivå.. Vi ser at koeffisientene fra aar_f2009 og frem til aar_f2017 øker fra år til år. 
-
+## i. Vi ser at aar_f2009 ikke er signifikant. Alle de andre årene er signifikante på et 0.1% nivå.. Vi ser at koeffisientene fra aar_f2009 og frem til aar_f2017 øker fra år til år.
 
 ## ii.
 
@@ -103,17 +101,17 @@ godt spørsmål
 
 # heteroskedastisitet
 
-## i. 
+## i.
 
 ```{r}
 bptest(lm1)
 ```
 
+## ii.
 
-## ii. 
 Ja, vi har problemer med heteroskedas
 
-## iii. 
+## iii.
 
 ```{r}
 coeftest(lm1)
@@ -127,18 +125,18 @@ vcovHC(lm1)
 vcov(lm1)
 ```
 
-## iv. 
+## iv.
 
-Dette er gjort i tidligere oppgave. 
+Dette er gjort i tidligere oppgave.
 
-## v. 
+## v.
 
 ```{r}
 pm2 <- pm2 %>% 
   mutate(aar_d = make_date(aar))
 ```
 
-### iv. 
+### iv.
 
 ```{r muterer }
 pm2 <- pm2 %>% 
@@ -152,7 +150,9 @@ pm2 <- pm2 %>%
 ```
 
 ## vii til x.
+
 Finner gjennomsnittet til hvert fylke hvert år.
+
 ```{r ggplot1}
 pm2 %>% 
   unnest(c(fylke)) %>% 
@@ -165,11 +165,9 @@ pm2 %>%
   theme(legend.position = "bottom")
 ```
 
-
 # Dummy fylke og år
 
 # i og ii.
-
 
 ```{r modell 2}
 mod2 <- 'pm2 ~ aar_f*fnr + totalt_ya_p + inc_k1 + inc_k5 + uni_k_mf + uni_l_mf + Trade_pc_100K'
@@ -177,16 +175,17 @@ lm2 <- lm(mod2, data = pm2)
 summary(lm2)
 ```
 
+## iii.
 
-## iii. 
 ```{r mutate lm2}
 pm2 <- pm2 %>% 
   mutate(res_m2 = resid(lm2))
 ```
 
-## iv. 
+## iv.
 
-DEL-PLOT 
+DEL-PLOT
+
 ```{r del-plot av fylkene}
 pm2 %>% filter(fnr %in% c("01", "02", "04", "11", "12")) %>%
 ggplot(mapping = aes(x = aar_d, y = res_m2)) +
@@ -197,16 +196,15 @@ theme(legend.position = 'bottom') +
   facet_wrap(~fylke)
 ```
 
-
-
 ### i + ii
 
-I modell 2 er ikke kvaliteten helt optimal, fordi den mangler noen variabler. Det kan skyldes heteroskedastisitet at det er en stor variasjon. Rogaland er et stort residual. 
-
+I modell 2 er ikke kvaliteten helt optimal, fordi den mangler noen
+variabler. Det kan skyldes heteroskedastisitet at det er en stor
+variasjon. Rogaland er et stort residual.
 
 ### iii
 
-Mangler noen farger for kommunenen. 
+Mangler noen farger for kommunenen.
 
 ```{r fylke 11}
 pm2 %>% filter(fnr %in% c("11")) %>%
@@ -218,7 +216,7 @@ geom_hline(yintercept = 0) +
 theme(legend.position = 'bottom')
 ```
 
-# i 
+# i
 
 ```{r}
 pm2 %>% filter(knr %in% c("1119", "1120", "1127", "1121", "1130", "1135", "1106", "1149")) %>%
@@ -229,16 +227,14 @@ scale_size_manual(values = c(seq(2.0, 0.5, by = -0.1))) +
 geom_hline(yintercept = 0) +
 theme(legend.position = 'bottom')
 ```
-## ii 
 
-De kommunene som ligger nærmest Stavanger overvurderes. 
+## ii
 
+De kommunene som ligger nærmest Stavanger overvurderes.
 
+# Modell for hvert år
 
-# Modell for hvert år 
-
-
-## i) 
+## i)
 
 ```{r pm2 til pm2_n}
 pm2_n <- pm2 %>% 
@@ -247,11 +243,9 @@ pm2_n <- pm2 %>%
   nest()
 ```
 
-
 ```{r pm2_n}
 pm2_n
 ```
-
 
 ```{r sjekker data i head}
 pm2_n$data[[1]] %>%
@@ -262,25 +256,21 @@ head(n = 5)
 dim(pm2_n)
 ```
 
-
 ```{r legger til a_df}
 kom_model <- function(a_df) {
   lm(pm2 ~ fnr + totalt_ya_p + inc_k1 + inc_k5 + uni_k_mf + uni_l_mf + Trade_pc_100K, data = pm2)
 }
 ```
 
-
 ```{r muatet model}
 pm2_n <- pm2_n %>% 
   mutate(model = map(data, .f = kom_model)) 
 ```
 
-
 ```{r summary}
 kom_model(pm2_n$aar) %>% 
   summary()
 ```
-
 
 ```{r pm2 tibble}
 pm2_n %>% 
@@ -300,10 +290,17 @@ mod_sum <- pm2_n %>%
 
 ### ii)
 
+## Siste delen mangler
+
 får ikke til siste del.
-```{r}
+
+```{r, eval = FALSE}
+# Denne er litt tricky derfor hint ;-)
 coef_df <- mod_sum %>% 
   map_df() %>% 
   as.tibble()
 ```
 
+```{r}
+#siste
+```
